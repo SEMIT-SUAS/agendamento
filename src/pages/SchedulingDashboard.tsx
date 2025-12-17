@@ -11,6 +11,8 @@ import "../styles/scheduling-dashboard.css"
 
 interface SchedulingDashboardProps {
   onNavigate: () => void
+  onLogout: () => void
+  currentUser: string
 }
 
 const BASE_URL = "http://192.168.200.34:8080/agendamentos"

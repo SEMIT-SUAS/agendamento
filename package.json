@@ -35,10 +35,26 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.0",
-    "autoprefixer": "^10.4.22",
+    "autoprefixer": "^10.4.23",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.17",
+    "tailwindcss": "^4.1.18",
     "typescript": "^5",
     "vite": "^5.4.21"
-  }
+  },
+  "description": "Sistema de agendamento para as secretarias",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SEMIT-SUAS/agendamento.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SEMIT-SUAS/agendamento/issues"
+  },
+  "homepage": "https://github.com/SEMIT-SUAS/agendamento#readme"
 }

@@ -1,22 +1,74 @@
 .display-panel {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   min-height: 100vh;
   background: linear-gradient(135deg, #0a1628 0%, #1a2a40 100%);
   color: white;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
 }
 
+/* Added header for display panel with logout */
+.display-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 32px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.display-header .user-email {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.display-header .logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.display-header .logout-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.display-header .logout-button:active {
+  transform: translateY(0);
+}
+
+.display-header .logout-button svg {
+  width: 16px;
+  height: 16px;
+}
+
 .display-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 60px;
+  margin: 40px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  min-width: 500px;
 }
 
 .senha-display {
@@ -81,9 +133,22 @@
 }
 
 @media (max-width: 768px) {
+  /* Responsive adjustments for header */
+  .display-header {
+    padding: 16px 20px;
+  }
+
+  .display-header .user-email {
+    font-size: 13px;
+  }
+
+  .display-header .logout-button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
   .display-content {
-    min-width: auto;
-    width: 100%;
+    margin: 20px;
     padding: 40px 20px;
   }
 

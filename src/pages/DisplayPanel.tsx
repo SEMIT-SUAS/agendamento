@@ -6,8 +6,9 @@ import type { Agendamento } from "../types/agendamento"
 
 interface DisplayPanelProps {
   onNavigate: () => void
+  onLogout: () => void
+  currentUser: string
 }
-
 const BASE_URL = "http://192.168.200.34:8080/agendamentos"
 
 export default function DisplayPanel({ onNavigate }: DisplayPanelProps) {
