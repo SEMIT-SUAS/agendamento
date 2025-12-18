@@ -1,9 +1,15 @@
 
-// export type UserProfile = "ADMIN" | "CADASTRO" | "CONSULTA";
+export type UserProfile = "ADMIN" | "ATENDENTE";
 
 export interface Usuario {
+  id: number;
+  nome: string;
+  cpf: string;
   email: string;
   senha: string;
+  guiche: number;
+  secretariaId: number;
+  perfil: UserProfile;
 }
 
 export interface Agendamento {

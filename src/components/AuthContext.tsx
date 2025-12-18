@@ -40,6 +40,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 horas em ms
 
+  useEffect(() => {
+        const storedToken = localStorage.getItem('agendamento_token');
+        const storedUser = localStorage.getItem('agendamento_user');
+        const storedExpiration = localStorage.getItem('agendamento_token_expiration');
+
+        if (storedToken && storedExpiration) {
+            const now = Date.now();
+
+            if (now < Number(storedExpiration)) {
+            setToken(storedToken);
+
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            }
+
+            setIsAuthenticated(true);
+            console.log('🔁 Sessão restaurada do localStorage');
+            } else {
+            console.warn('⏰ Sessão expirada');
+            localStorage.clear();
+            }
+        }
+
+        setIsLoading(false);
+        }, []);
+
 //   useEffect(() => {
 //     const storedToken = localStorage.getItem('adi_token');
 //     const storedUser = localStorage.getItem('adi_user');
@@ -75,30 +101,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify({ login, senha }),
       });
 
-      console.log('Login response status:', response);
+      if (!response.ok) {
+        console.log('Usuário não encontrado');
+        return false;
+    }   
 
-      const reposta = await fetch(`${BASE_URL}gerenciador/usuario-logado`);
-
-      
-
-      if (response.ok) {
-        setIsAuthenticated(true);
-        return true;
-      }else{
-        console.log('Usuario não encontrado');
-        return false
-      }
+      const data = await response.json();
+      console.log('Login response status 1: ', data);
 
       const expiration = new Date().getTime() + SESSION_DURATION_MS;
 
-    //   setToken(response.token);
-    //   setUser(response.user);
+       // 🔐 Salva token
+        setToken(data.token);
+        localStorage.setItem('agendamento_token', data.token);
+        localStorage.setItem('agendamento_token_expiration', expiration.toString());
 
-    //   localStorage.setItem('adi_token', response.token);
-    //   localStorage.setItem('adi_user', JSON.stringify(response.user));
-    //   localStorage.setItem('adi_token_expiration', expiration.toString());
+        // 👤 Busca usuário logado enviando o token
+        const resposta = await fetch(`${BASE_URL}gerenciador/usuario-logado`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${data.token}`,
+        },
+        });
 
-      console.log(`✅ Sessão iniciada — expira em ${new Date(expiration).toLocaleTimeString()}`);
+        const user = await resposta.json();
+
+        setUser(user);
+        localStorage.setItem('agendamento_user', JSON.stringify(user));
+
+        setIsAuthenticated(true);
+
+        console.log('Resposta do setIsAuthenticated:', isAuthenticated);
+
+        console.log(`✅ Sessão iniciada — expira em ${new Date(expiration).toLocaleTimeString()}`);
+
+        return true;
     } catch (error) {
       console.error('Login error:', error);
       return false;
