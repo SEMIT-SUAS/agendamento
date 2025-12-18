@@ -1,4 +1,3 @@
-
 export type UserProfile = "ADMIN" | "ATENDENTE";
 
 export interface Usuario {
@@ -10,6 +9,13 @@ export interface Usuario {
   guiche: number;
   secretariaId: number;
   perfil: UserProfile;
+}
+
+export interface UsuarioLogin {
+  id: number;
+  nome: string;
+  perfil: UserProfile;
+  token: string;
 }
 
 export interface Agendamento {

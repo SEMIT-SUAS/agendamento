@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Usuario } from '@/types/agendamento';
+import { Usuario, UsuarioLogin } from '@/types/agendamento';
 // import { authAPI, usuariosAPI } from '@/lib/api';
 
 export type UserProfile = 'ADMIN' | 'CADASTRO' | 'CONSULTA';
@@ -37,6 +37,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+   const [Usuarios, setUsuarios] = useState<UsuarioLogin | null>(null);
 
   const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 horas em ms
 
@@ -125,7 +126,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
         });
 
-        const user = await resposta.json();
+        if (!resposta.ok) {
+        throw new Error('Erro ao buscar usuário logado');
+        }
+
+        const user: Usuario = await resposta.json();
 
         setUser(user);
         localStorage.setItem('agendamento_user', JSON.stringify(user));
@@ -144,6 +149,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(false);
     }
   };
+
+  
 
   const logout = () => {
     console.log('🚪 Logout realizado');

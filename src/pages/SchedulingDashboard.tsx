@@ -7,6 +7,7 @@ import SchedulingTable from "../components/SchedulingTable"
 import SchedulingModal from "../components/SchedulingModal"
 import DetailsModal from "../components/DetailsModal"
 import type { Agendamento } from "../types/agendamento"
+import { useAuth } from "@/components/AuthContext";
 
 interface SchedulingDashboardProps {
   onNavigate: () => void
@@ -22,6 +23,7 @@ export default function SchedulingDashboard({ onNavigate }: SchedulingDashboardP
   const [selectedAgendamento, setSelectedAgendamento] = useState<Agendamento | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const { user, logout, clearCache } = useAuth();
 
   useEffect(() => {
     const loadData = async () => {
@@ -149,6 +151,7 @@ export default function SchedulingDashboard({ onNavigate }: SchedulingDashboardP
     <h1 className="text-2xl font-semibold mb-1 -tracking-wide">Painel de Agendamentos</h1>
     <p className="text-sm text-white/80">Centro Avançado de Apoio - São Luís</p>
   </div>
+    <button onClick={clearCache}>Sair</button>
 </header>
 
       <main className="flex-1 overflow-auto p-6 lg:p-12 flex flex-col gap-6">

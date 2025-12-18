@@ -1,10 +1,11 @@
 "use client"
 
-import type { Agendamento } from "../types/agendamento"
+import type { Agendamento, Usuario } from "../types/agendamento"
 import { formatDate, formatSituation } from "../utils/formatters"
 import { Dispatch, SetStateAction, useState } from "react"
+import { useAuth } from "./AuthContext"
 
-const BASE_URL = "http://192.168.200.34:8080/agendamentos"
+const BASE_URL = "http://192.168.200.157:8080/agendamentos"
 
 interface SchedulingTableProps {
   setAgendamentos: Dispatch<SetStateAction<Agendamento[]>>;
@@ -25,13 +26,16 @@ export default function SchedulingTable({
     return <div className="p-8 text-center text-gray-500 text-sm">Carregando agendamentos...</div>
   }
 
+  const { user } = useAuth();
   const [agendamento, setAgendamento] =  useState<Agendamento | null>(null);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  console.log('👤 Usuario Login (AuthContext):', user);
+
   const onSelectChamarPorSenha = async (e: React.MouseEvent<HTMLButtonElement>, senha: string) => {
     try {
-        const response = await fetch(`${BASE_URL}/chamar/por-senha/${senha}`, { method: "POST" })
+        const response = await fetch(`${BASE_URL}/chamar/por-senha/${senha}/${user?.id}`, { method: "POST" })
         console.log('Agendamento ID para Chamar Normal:', senha);
 
         let data
