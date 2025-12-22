@@ -20,7 +20,6 @@ export default function ActionButtons({
   setSelectedAgendamento,
   setAgendamentos,
   selectedAgendamento,
-  onFinalize,
   onCancel,
 }: ActionButtonsProps) {
 
@@ -75,7 +74,7 @@ export default function ActionButtons({
           let data
           try {
             data = await response.json() 
-            console.log('Data Chamar Normal:', data); 
+            console.log('Data Chamar Prioridade:', data); 
           } catch {
             data = null
           }
@@ -97,47 +96,93 @@ export default function ActionButtons({
         }
   }
 
-  return (
-    <div className="flex gap-3 items-center">
-      {!selectedAgendamento ? (
-        <div className="flex gap-3 items-center">
-          <button
-            className="px-4 py-2.5 text-sm font-medium rounded-md bg-blue-600 text-white flex items-center gap-1.5 transition-all duration-200 hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap"
-            onClick={onCallNormal}
-            title="Chamar próximo agendamento"
-          >
-            <span className="text-base leading-none">📢</span>
-            Chamar Normal
-          </button>
-          <button
-            className="px-4 py-2.5 text-sm font-medium rounded-md bg-orange-500 text-white flex items-center gap-1.5 transition-all duration-200 hover:bg-[#f05a1e] hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap"
-            onClick={onCallPriority}
-            title="Chamar próximo com prioridade"
-          >
-            <span className="text-base leading-none">⚡</span>
-            Chamar Prioridade
-          </button>
-        </div>
-      ) : (
-        <div className="flex gap-3 items-center">
-          <button
-            className="px-4 py-2.5 text-sm font-medium rounded-md bg-green-600 text-white flex items-center gap-1.5 transition-all duration-200 hover:bg-green-700 hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap"
-            onClick={onFinalize}
-            title="Finalizar atendimento"
-          >
-            <span className="text-base leading-none">✅</span>
-            Finalizar
-          </button>
-          <button
-            className="px-4 py-2.5 text-sm font-medium rounded-md bg-red-600 text-white flex items-center gap-1.5 transition-all duration-200 hover:bg-red-700 hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap"
-            onClick={onCancel}
-            title="Marcar como não compareceu"
-          >
-            <span className="text-base leading-none">❌</span>
-            Cancelar
-          </button>
-        </div>
-      )}
-    </div>
-  )
+  const onFinalize = async () => {
+  if (!selectedAgendamento) {
+    console.log("Não existe agendamento selecionado para finalizar.")
+    return
+  }
+
+  if (selectedAgendamento.situacao !== "EM_ATENDIMENTO") {
+    console.log("Agendamento não está em atendimento.")
+    return
+  }
+
+  try {
+    console.log("Finalizando:", selectedAgendamento)
+
+    const response = await fetch(
+      `${BASE_URL}/finalizar/${selectedAgendamento.agendamentoId}`,
+      { method: "PUT" }
+    )
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    setAgendamentos(prev =>
+      prev.map(p =>
+        p.agendamentoId === selectedAgendamento.agendamentoId
+          ? { ...p, situacao: "FINALIZADO" }
+          : p
+      )
+    )
+
+    setSelectedAgendamento(null)
+
+  } catch (error) {
+    console.error("Erro ao finalizar:", error)
+    alert("Erro ao finalizar atendimento")
+  }
+}
+
+const showCallButtons =
+  !selectedAgendamento || selectedAgendamento.situacao === "AGENDADO";
+
+const showActionButtons =
+  selectedAgendamento?.situacao === "EM_ATENDIMENTO";
+
+
+ return (
+  <div className="flex gap-3 items-center">
+
+    {/* 🔵 Chamar Normal / Prioridade */}
+    {showCallButtons && (
+      <div className="flex gap-3 items-center">
+        <button
+          className="px-4 py-2.5 text-sm font-medium rounded-md bg-blue-600 text-white"
+          onClick={onCallNormal}
+        >
+          📢 Chamar Normal
+        </button>
+
+        <button
+          className="px-4 py-2.5 text-sm font-medium rounded-md bg-orange-500 text-white"
+          onClick={onCallPriority}
+        >
+          ⚡ Chamar Prioridade
+        </button>
+      </div>
+    )}
+
+    {/* 🟢 Finalizar / 🔴 Cancelar */}
+    {showActionButtons && (
+      <div className="flex gap-3 items-center">
+        <button
+          className="px-4 py-2.5 text-sm font-medium rounded-md bg-green-600 text-white"
+          onClick={onFinalize}
+        >
+          ✅ Finalizar
+        </button>
+
+        <button
+          className="px-4 py-2.5 text-sm font-medium rounded-md bg-red-600 text-white"
+          onClick={onCancel}
+        >
+          ❌ Cancelar
+        </button>
+      </div>
+    )}
+
+  </div>
+)
 }

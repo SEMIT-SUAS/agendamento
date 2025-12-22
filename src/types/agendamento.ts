@@ -1,5 +1,12 @@
 export type UserProfile = "ADMIN" | "ATENDENTE";
 
+export type SituacaoAgendamento =
+  | "AGENDADO"
+  | "EM_ATENDIMENTO"
+  | "REAGENDADO"
+  | "FINALIZADO"
+  | "NAO_COMPARECEU"
+
 export interface Usuario {
   id: number;
   nome: string;
@@ -25,7 +32,7 @@ export interface Agendamento {
   usuarioNome: string
   usuarioTipo?: string
   servicoNome: string
-  situacao: "AGENDADO" | "EM_ATENDIMENTO" | "REAGENDADO" | "CANCELADO" | "NAO_COMPARECEU"
+  situacao: SituacaoAgendamento
   tipoAtendimento: string
   horaAgendamento: string
   horaChamada?: string

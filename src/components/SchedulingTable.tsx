@@ -118,7 +118,7 @@ export default function SchedulingTable({
                       ? 'bg-green-50 text-green-600'
                       : agendamento.situacao === 'REAGENDADO'
                       ? 'bg-yellow-50 text-yellow-600'
-                      : agendamento.situacao === 'CANCELADO'
+                      : agendamento.situacao === 'FINALIZADO'
                       ? 'bg-red-50 text-red-600'
                       : 'bg-gray-50 text-gray-500'
                     }
