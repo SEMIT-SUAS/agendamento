@@ -1,9 +1,8 @@
-"use client"
-
 import type { Agendamento, Usuario } from "../types/agendamento"
 import { formatDate, formatSituation } from "../utils/formatters"
 import { Dispatch, SetStateAction, useState } from "react"
 import { useAuth } from "./AuthContext"
+import { Phone, AlertCircle, Clock, Zap, CheckCircle, XCircle, Users, Calendar } from "lucide-react"
 
 const BASE_URL = "http://192.168.200.157:8080/agendamentos"
 
@@ -23,124 +22,201 @@ export default function SchedulingTable({
   isLoading,
 }: SchedulingTableProps) {
   if (isLoading) {
-    return <div className="p-8 text-center text-gray-500 text-sm">Carregando agendamentos...</div>
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-4">
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-2.5 h-2.5 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full animate-bounce"></div>
+          <div className="w-2.5 h-2.5 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+          <div className="w-2.5 h-2.5 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+        </div>
+        <p className="text-gray-400 text-sm font-medium">Carregando agendamentos...</p>
+      </div>
+    )
   }
 
   const { user } = useAuth();
-  const [agendamento, setAgendamento] =  useState<Agendamento | null>(null);
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // console.log('👤 Usuario Login (AuthContext):', user);
+  const [agendamento, setAgendamento] = useState<Agendamento | null>(null);
 
   const onSelectChamarPorSenha = async (e: React.MouseEvent<HTMLButtonElement>, senha: string) => {
     try {
-        const response = await fetch(`${BASE_URL}/chamar/por-senha/${senha}/${user?.id}`, { method: "POST" })
-        console.log('Agendamento ID para Chamar Normal:', senha);
+      const response = await fetch(`${BASE_URL}/chamar/por-senha/${senha}/${user?.id}`, { method: "POST" })
+      console.log('Agendamento ID para Chamar Normal:', senha);
 
-        let data
-        try {
-          data = await response.json()
-        } catch {
-          data = null
-        }
+      let data
+      try {
+        data = await response.json()
+      } catch {
+        data = null
+      }
 
-        setAgendamento(data);
-        
-        setAgendamentos(prev =>
-          prev.map(p =>
-            p.agendamentoId === data?.agendamentoId
-              ? { ...p, situacao: "EM_ATENDIMENTO" }
-              : p
-          )
-        );
+      setAgendamento(data);
+
+      setAgendamentos(prev =>
+        prev.map(p =>
+          p.agendamentoId === data?.agendamentoId
+            ? { ...p, situacao: "EM_ATENDIMENTO" }
+            : p
+        )
+      );
 
       e.stopPropagation();
 
-      } catch (error) {
-        console.error("Erro ao chamar:", error)
-        alert("Erro ao chamar agendamento")
-      }
+    } catch (error) {
+      console.error("Erro ao chamar:", error)
+      alert("Erro ao chamar agendamento")
+    }
+  }
+
+  const getSituacaoIcon = (situacao: string) => {
+    switch (situacao) {
+      case 'AGENDADO':
+        return <Calendar className="w-3.5 h-3.5" />
+      case 'EM_ATENDIMENTO':
+        return <Zap className="w-3.5 h-3.5" />
+      case 'REAGENDADO':
+        return <Clock className="w-3.5 h-3.5" />
+      case 'FINALIZADO':
+        return <CheckCircle className="w-3.5 h-3.5" />
+      default:
+        return <AlertCircle className="w-3.5 h-3.5" />
+    }
+  }
+
+  const getSituacaoBg = (situacao: string) => {
+    switch (situacao) {
+      case 'AGENDADO':
+        return 'bg-blue-50 border border-blue-200'
+      case 'EM_ATENDIMENTO':
+        return 'bg-emerald-50 border border-emerald-200'
+      case 'REAGENDADO':
+        return 'bg-amber-50 border border-amber-200'
+      case 'FINALIZADO':
+        return 'bg-red-50 border border-red-200'
+      default:
+        return 'bg-gray-50 border border-gray-200'
+    }
+  }
+
+  const getSituacaoTextColor = (situacao: string) => {
+    switch (situacao) {
+      case 'AGENDADO':
+        return 'text-blue-700'
+      case 'EM_ATENDIMENTO':
+        return 'text-emerald-700'
+      case 'REAGENDADO':
+        return 'text-amber-700'
+      case 'FINALIZADO':
+        return 'text-red-700'
+      default:
+        return 'text-gray-700'
+    }
   }
 
   return (
-    <div className="bg-white rounded-lg overflow-y-auto overflow-x-hidden shadow-sm border border-gray-200">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="bg-blue-600 text-white">
-            <th className="p-3.5 text-center font-semibold tracking-wide relative top-0">Senha</th>
-            <th className="p-3.5 text-center font-semibold tracking-wide relative top-0">Usuário</th>
-            <th className="p-3.5 text-center font-semibold tracking-wide relative top-0">Serviço</th>
-            <th className="p-3.5 text-center font-semibold tracking-wide relative top-0">Situação</th>
-            <th className="p-3.5 text-center font-semibold tracking-wide relative top-0">Tipo</th>
-            <th className="p-3.5 text-center font-semibold tracking-wide relative top-0">Data/Hora</th>
-            <th className="p-3.5 text-center font-semibold tracking-wide relative top-0">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {agendamentos.length === 0 ? (
-            <tr>
-              <td colSpan={7} className="text-center p-8 text-gray-400 italic">
-                Nenhum agendamento encontrado
-              </td>
-            </tr>
-          ) : (
-            agendamentos.map((agendamento) => (
-              <tr
-                key={agendamento.agendamentoId}
-                className={`
-                  transition-all duration-200 cursor-pointer hover:bg-gray-50
-                  ${selectedAgendamento?.agendamentoId === agendamento.agendamentoId 
-                    ? "bg-blue-50 border-l-4 border-l-blue-600 pl-2" 
-                    : ""}
-                `}
-                onClick={(e) => {
-                  const clickedElement = e.target as HTMLElement;
-                  
-                  if (clickedElement.closest('.chamar-button')) {
-                    return; 
-                  }
+    <div className="w-full">
+      {agendamentos.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
+          <div className="bg-white p-4 rounded-full border border-gray-200 shadow-sm">
+            <AlertCircle className="w-8 h-8 text-gray-400" />
+          </div>
+          <div className="text-center">
+            <p className="text-gray-600 font-semibold text-base">Nenhum agendamento encontrado</p>
+            <p className="text-gray-400 text-sm mt-1">Tente ajustar sua busca ou filtros</p>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {agendamentos.map((agendamento) => (
+            <div
+              key={agendamento.agendamentoId}
+              className={`
+                group relative rounded-xl border-2 transition-all duration-300 cursor-pointer
+                hover:shadow-lg hover:border-blue-200
+                ${selectedAgendamento?.agendamentoId === agendamento.agendamentoId
+                  ? 'bg-gradient-to-r from-blue-50 via-white to-white border-blue-300 shadow-lg shadow-blue-200/30'
+                  : 'bg-white border-gray-200 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-white'
+                }
+              `}
+              onClick={(e) => {
+                const clickedElement = e.target as HTMLElement;
+                if (clickedElement.closest('.chamar-button')) {
+                  return;
+                }
+                onSelectAgendamento(agendamento);
+              }}
+            >
+              {/* Left accent bar */}
+              <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl transition-all duration-300 ${
+                selectedAgendamento?.agendamentoId === agendamento.agendamentoId
+                  ? 'bg-gradient-to-b from-blue-600 to-blue-400'
+                  : 'bg-gradient-to-b from-gray-300 to-gray-200 group-hover:from-blue-400 group-hover:to-blue-300'
+              }`} />
 
-                  onSelectAgendamento(agendamento);
-                }}
-              >
-                <td className="p-3.5 border-b border-gray-200 text-center font-semibold text-blue-600">
-                  <strong>{agendamento.senha}</strong>
-                </td>
-                <td className="p-3.5 border-b border-gray-200 text-center text-gray-800">{agendamento.usuarioNome}</td>
-                <td className="p-3.5 border-b border-gray-200 text-center text-gray-800">{agendamento.servicoNome}</td>
-                <td className="p-3.5 border-b border-gray-200 text-center">
-                  <span className={`
-                    px-3 py-1 rounded text-xs font-medium inline-block
-                    ${agendamento.situacao === 'AGENDADO' 
-                      ? 'bg-blue-50 text-blue-600' 
-                      : agendamento.situacao === 'EM_ATENDIMENTO'
-                      ? 'bg-green-50 text-green-600'
-                      : agendamento.situacao === 'REAGENDADO'
-                      ? 'bg-yellow-50 text-yellow-600'
-                      : agendamento.situacao === 'FINALIZADO'
-                      ? 'bg-red-50 text-red-600'
-                      : 'bg-gray-50 text-gray-500'
-                    }
-                  `}>
-                    {formatSituation(agendamento.situacao)}
-                  </span>
-                </td>
-                <td className="p-3.5 border-b border-gray-200 text-center text-gray-800">{agendamento.tipoAtendimento}</td>
-                <td className="p-3.5 border-b border-gray-200 text-center text-gray-800">{formatDate(agendamento.horaAgendamento)}</td>
-                <td className="p-3.5 border-b border-gray-200 text-center">
-                  <button 
-                    className="bg-red-500 text-white px-3 py-1 rounded text-sm chamar-button hover:bg-red-600 transition-colors"
-                    onClick={(e) => onSelectChamarPorSenha(e, agendamento.senha)}
-                  >
-                    Chamar
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+              <div className="pl-4 pr-6 py-4">
+                <div className="grid grid-cols-1 md:grid-cols-7 gap-4 md:gap-3 items-center">
+                  {/* Senha */}
+                  <div className="flex items-center gap-3 md:col-span-1">
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                      <Zap className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 font-semibold uppercase">Senha</p>
+                      <p className="text-lg font-bold text-blue-700">{agendamento.senha}</p>
+                    </div>
+                  </div>
+
+                  {/* Usuário */}
+                  <div className="md:col-span-1">
+                    <p className="text-xs text-gray-500 font-semibold uppercase mb-1">Usuário</p>
+                    <p className="text-sm font-medium text-gray-800 truncate">{agendamento.usuarioNome}</p>
+                  </div>
+
+                  {/* Serviço */}
+                  <div className="md:col-span-1">
+                    <p className="text-xs text-gray-500 font-semibold uppercase mb-1">Serviço</p>
+                    <p className="text-sm font-medium text-gray-700 truncate">{agendamento.servicoNome}</p>
+                  </div>
+
+                  {/* Situação */}
+                  <div className="md:col-span-1">
+                    <p className="text-xs text-gray-500 font-semibold uppercase mb-1">Situação</p>
+                    <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs ${getSituacaoBg(agendamento.situacao)}`}>
+                      <span className={getSituacaoTextColor(agendamento.situacao)}>
+                        {getSituacaoIcon(agendamento.situacao)}
+                      </span>
+                      <span className={getSituacaoTextColor(agendamento.situacao)}>
+                        {formatSituation(agendamento.situacao)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Tipo */}
+                  <div className="md:col-span-1">
+                    <p className="text-xs text-gray-500 font-semibold uppercase mb-1">Tipo</p>
+                    <p className="text-sm font-medium text-gray-700">{agendamento.tipoAtendimento || "—"}</p>
+                  </div>
+
+                  {/* Data/Hora */}
+                  <div className="md:col-span-1">
+                    <p className="text-xs text-gray-500 font-semibold uppercase mb-1">Data/Hora</p>
+                    <p className="text-sm font-medium text-gray-700">{formatDate(agendamento.horaAgendamento)}</p>
+                  </div>
+
+                  {/* Ações */}
+                  <div className="md:col-span-1 flex justify-end">
+                    <button
+                      className="chamar-button group/btn inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
+                      onClick={(e) => onSelectChamarPorSenha(e, agendamento.senha)}
+                    >
+                      <span>Chamar</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
