@@ -11,7 +11,6 @@ import { useAuth } from "@/components/AuthContext";
 import { LogOut, Calendar, Clock, Users } from "lucide-react";
 
 interface SchedulingDashboardProps {
-  onNavigate: () => void;
   onLogout: () => void;
   currentUser: string;
 }
@@ -19,7 +18,6 @@ interface SchedulingDashboardProps {
 const BASE_URL = "http://192.168.200.157:8080/agendamentos";
 
 export default function SchedulingDashboard({
-  onNavigate,
 }: SchedulingDashboardProps) {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [searchTerm, setSearchTerm] = useState("");

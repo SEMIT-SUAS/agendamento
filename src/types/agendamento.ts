@@ -43,3 +43,15 @@ export interface Secretaria {
   nome: string;
   sigla: string;
 }
+
+export interface UltimaChamada {
+    agendamentoId: number,         // ✅ ID DO AGENDAMENTO
+        senha: string,
+        tipoAtendimento: string,
+        horaChamada?: string,
+        usuarioId: number,
+        usuarioNome: string,
+        servicoId: number,
+        servicoNome: string,
+        guiche: number
+}

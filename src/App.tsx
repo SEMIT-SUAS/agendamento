@@ -1,48 +1,58 @@
-"use client"
-
 import "./App.css"
+import { Routes, Route, Navigate } from "react-router-dom"
+
 import SchedulingDashboard from "./pages/SchedulingDashboard"
 import DisplayPanel from "./pages/DisplayPanel"
 import LoginPage from "./pages/LoginPage"
+
 import { AuthProvider, useAuth } from "@/components/AuthContext"
-import { useState } from "react"
+import CallBoardPage from "./pages/CallBoardPage"
 
-type AppView = "dashboard" | "display"
+// Rota protegida
+function PrivateRoute({ children }: { children: JSX.Element }) {
+  const { isAuthenticated } = useAuth()
+  return isAuthenticated ? children : <Navigate to="/login" />
+}
 
-// Componente interno que usa o contexto
-function AppContent() {
+function AppRoutes() {
   const { isAuthenticated, user, logout } = useAuth()
-  const [currentView, setCurrentView] = useState<AppView>("dashboard")
-
-  if (!isAuthenticated) {
-    return <LoginPage />
-  }
 
   return (
-    <div className="app">
-      {currentView === "dashboard" && (
-        <SchedulingDashboard
-          onNavigate={() => setCurrentView("display")}
-          onLogout={logout}
-          currentUser={user?.email || ""}
-        />
-      )}
-      {currentView === "display" && (
-        <DisplayPanel
-          onNavigate={() => setCurrentView("dashboard")}
-          onLogout={logout}
-          currentUser={user?.email || ""}
-        />
-      )}
-    </div>
+    <Routes>
+      {/* Rota pública */}
+      <Route path="/telao" element={<CallBoardPage />} />
+
+      {/* Login */}
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? <Navigate to="/" /> : <LoginPage />
+        }
+      />
+
+      {/* Dashboard protegido */}
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <SchedulingDashboard
+              onLogout={logout}
+              currentUser={user?.email || ""}
+            />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   )
 }
 
-// Componente principal que fornece o contexto
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <AppRoutes />
     </AuthProvider>
   )
 }
