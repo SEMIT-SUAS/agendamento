@@ -136,13 +136,12 @@ export default function ActionButtons({
   }
 }
 
-  const showCallButtons =
-  !selectedAgendamento ||
-  selectedAgendamento.situacao === "AGENDADO";
+  const showCallButtons = selectedAgendamento === null || selectedAgendamento.situacao === "FINALIZADO" || selectedAgendamento.situacao === "AGENDADO"
 
   const showActionButtons =
-    selectedByUser &&
-    selectedAgendamento?.situacao === "EM_ATENDIMENTO";
+    selectedAgendamento !== null &&
+    selectedAgendamento.situacao === "EM_ATENDIMENTO"
+
 
 
  return (

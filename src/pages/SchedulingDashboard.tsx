@@ -42,13 +42,13 @@ export default function SchedulingDashboard({
           : data.content || data.data || [];
         setAgendamentos(lista);
         // Auto-select em atendimento
-        const emAtendimento = lista.find(
-          (e: Agendamento) => e.situacao === "EM_ATENDIMENTO"
-        );
-        if (emAtendimento) {
-          setSelectedAgendamento(emAtendimento);
-          setSelectedByUser(false);
-        }
+        // const emAtendimento = lista.find(
+        //   (e: Agendamento) => e.situacao === "EM_ATENDIMENTO"
+        // );
+        // if (emAtendimento) {
+        //   setSelectedAgendamento(emAtendimento);
+        //   setSelectedByUser(false);
+        // }
       } catch (error) {
         console.error("Erro ao carregar agendamentos:", error);
       } finally {

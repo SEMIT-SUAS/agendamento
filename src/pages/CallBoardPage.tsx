@@ -49,6 +49,29 @@ export default function CallBoardPage() {
         })
     }, [])
 
+
+    useEffect(() => {
+    const buscarUltimaChamada = () => {
+      fetch(`${BASE_URL}/agendamentos/ultima-chamada`)
+        .then(res => res.json())
+        .then(data => {
+          setUltimaChamada(data)
+        })
+        .catch(err => console.error(err))
+    }
+
+    // 🔹 busca imediatamente ao entrar na página
+    buscarUltimaChamada()
+
+    // 🔁 atualiza a cada 3 segundos
+    const interval = setInterval(() => {
+      buscarUltimaChamada()
+    }, 1000)
+
+    // 🧹 limpeza obrigatória
+    return () => clearInterval(interval)
+  }, [])
+
   const [currentCall, setCurrentCall] = useState<Call>({
     id: "current",
     senha: "N005",
