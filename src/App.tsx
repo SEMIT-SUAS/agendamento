@@ -1,50 +1,59 @@
-"use client"
-
-import { useState } from "react"
 import "./App.css"
+import { Routes, Route, Navigate } from "react-router-dom"
+
 import SchedulingDashboard from "./pages/SchedulingDashboard"
 import DisplayPanel from "./pages/DisplayPanel"
 import LoginPage from "./pages/LoginPage"
 
-type AppView = "dashboard" | "display"
+import { AuthProvider, useAuth } from "@/components/AuthContext"
+import CallBoardPage from "./pages/CallBoardPage"
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [currentUser, setCurrentUser] = useState<string>("")
-  const [currentView, setCurrentView] = useState<AppView>("dashboard")
+// Rota protegida
+function PrivateRoute({ children }: { children: JSX.Element }) {
+  const { isAuthenticated } = useAuth()
+  return isAuthenticated ? children : <Navigate to="/login" />
+}
 
-  const handleLogin = (email: string) => {
-    setCurrentUser(email)
-    setIsAuthenticated(true)
-  }
-
-  const handleLogout = () => {
-    setIsAuthenticated(false)
-    setCurrentUser("")
-    setCurrentView("dashboard")
-  }
-
-  if (!isAuthenticated) {
-    return <LoginPage onLogin={handleLogin} />
-  }
+function AppRoutes() {
+  const { isAuthenticated, user, logout } = useAuth()
 
   return (
-    <div className="app">
-      {currentView === "dashboard" && (
-        <SchedulingDashboard
-          onNavigate={() => setCurrentView("display")}
-          onLogout={handleLogout}
-          currentUser={currentUser}
-        />
-      )}
-      {currentView === "display" && (
-        <DisplayPanel
-          onNavigate={() => setCurrentView("dashboard")}
-          onLogout={handleLogout}
-          currentUser={currentUser}
-        />
-      )}
-    </div>
+    <Routes>
+      {/* Rota pública */}
+      <Route path="/telao" element={<CallBoardPage />} />
+
+      {/* Login */}
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? <Navigate to="/" /> : <LoginPage />
+        }
+      />
+
+      {/* Dashboard protegido */}
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <SchedulingDashboard
+              onLogout={logout}
+              currentUser={user?.email || ""}
+            />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  )
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   )
 }
 
